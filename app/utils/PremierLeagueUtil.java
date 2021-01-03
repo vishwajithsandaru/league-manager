@@ -6,7 +6,10 @@ import play.libs.Json;
 import responses.ErrorResponse;
 import responses.GeneralResponse;
 
+import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PremierLeagueUtil {
 
@@ -149,6 +152,31 @@ public class PremierLeagueUtil {
 
         return returnInt;
 
+    }
+
+    public static String randomDate(int season) {
+
+        int year = getRandomNumber(season, season+1);
+        int month = getRandomNumber(1, 12);
+        int day = getRandomNumber(1, 30);
+
+        return (year+"-"+String.format("%02d", month)+"-"+String.format("%02d", day));
+
+    }
+
+    public static String randomTime(){
+
+        int hour = getRandomNumber(1, 24);
+        int min = getRandomNumber(1, 59);
+
+        String time = String.format("%02d", hour) + ":" + String.format("%02d", min);
+        return time;
+
+    }
+
+    public static int getRandomNumber(int min, int max) {
+        Random random = new Random();
+        return random.nextInt(max - min) + min;
     }
 
 }

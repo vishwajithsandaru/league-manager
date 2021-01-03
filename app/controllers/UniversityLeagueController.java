@@ -1,8 +1,10 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import exceptions.PremierLeagueException;
 import exceptions.UniversityLeagueException;
 import exceptions.UniversityLeagueException;
+import models.Match;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -10,12 +12,16 @@ import play.mvc.Result;
 import requests.AddFootballClubRequest;
 import requests.AddMatchRequest;
 import responses.LeagueTableResponse;
+import responses.MatchResponse;
 import responses.StatsResponse;
 import responses.UniversityStatsResponse;
 import services.UniversityLeagueManager;
 import utils.PremierLeagueUtil;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -293,6 +299,102 @@ public class UniversityLeagueController {
             try {
                 universityLeagueManager.saveState();
                 return ok(PremierLeagueUtil.returnJsonGeneralResponse("SUCESS", "State Saved Successfully"));
+            } catch (UniversityLeagueException e) {
+                return badRequest(PremierLeagueUtil.returnJsonError("-1", e.getMessage()));
+            }
+
+        }, httpExecutionContext.current());
+
+    }
+
+    public CompletionStage<Result> addRandomMatch(String season, Http.Request request){
+
+        return supplyAsync(()->{
+
+            String seasonYear = season;
+            try{
+                int seasonInt = Integer.parseInt(seasonYear);
+                seasonYear = PremierLeagueUtil.getSeasonText(seasonInt);
+            }
+            catch (Exception e){
+                JsonNode jsonNode = PremierLeagueUtil.returnJsonError("-1", "Invalid Season");
+                return badRequest(jsonNode);
+            }
+
+            try {
+                universityLeagueManager.addRandomMatch(seasonYear);
+                return ok(PremierLeagueUtil.returnJsonGeneralResponse("SUCESS", "Match Added Successfully"));
+            } catch (UniversityLeagueException e) {
+                return badRequest(PremierLeagueUtil.returnJsonError("-1", e.getMessage()));
+            }
+
+        });
+
+    }
+
+    public CompletionStage<Result> listMatches(String season, Http.Request request){
+
+        return supplyAsync(()->{
+
+            String seasonYear = season;
+            try{
+                int seasonInt = Integer.parseInt(seasonYear);
+                seasonYear = PremierLeagueUtil.getSeasonText(seasonInt);
+            }
+            catch (Exception e){
+                JsonNode jsonNode = PremierLeagueUtil.returnJsonError("-1", "Invalid Season");
+                return badRequest(jsonNode);
+            }
+
+            try {
+                List<MatchResponse> matches = universityLeagueManager.listMatches(seasonYear);
+                if(matches.isEmpty()){
+                    return badRequest(PremierLeagueUtil.returnJsonError("-1", "No Matches Has Been Entered"));
+                }else{
+                    return ok(Json.toJson(matches));
+                }
+            } catch (Exception e) {
+                return badRequest(PremierLeagueUtil.returnJsonError("-1", e.getMessage()));
+            }
+
+        });
+
+    }
+
+    public CompletionStage<Result> getMatchFromDate(String season, String date, Http.Request request){
+
+        return supplyAsync(()->{
+
+            String seasonYear = season;
+            try{
+                int seasonInt = Integer.parseInt(seasonYear);
+                seasonYear = PremierLeagueUtil.getSeasonText(seasonInt);
+            }
+            catch (Exception e){
+                JsonNode jsonNode = PremierLeagueUtil.returnJsonError("-1", "Invalid Season");
+                return badRequest(jsonNode);
+            }
+
+            try {
+                Match match = universityLeagueManager.getMatchFromDate(seasonYear, date);
+
+                MatchResponse matchResponse = new MatchResponse();
+                matchResponse.setTeam1(match.getTeam1().getName());
+                matchResponse.setTeam2(match.getTeam2().getName());
+                matchResponse.setScore1(String.valueOf(match.getTeam1Score()));
+                matchResponse.setScore2(String.valueOf(match.getTeam2Score()));
+
+                LocalDate localdate = match.getDateTime().toLocalDate();
+                LocalTime time = match.getDateTime().toLocalTime();
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                matchResponse.setDate(localdate.format(formatter));
+                formatter = DateTimeFormatter.ofPattern("HH:mm");
+                matchResponse.setTime(time.format(formatter));
+                matchResponse.setStatus(match.getStatus());
+
+                return ok(Json.toJson(matchResponse));
             } catch (UniversityLeagueException e) {
                 return badRequest(PremierLeagueUtil.returnJsonError("-1", e.getMessage()));
             }

@@ -2,11 +2,14 @@ package dao;
 
 import domains.League;
 import models.FootballClub;
+import models.SchoolFootballClub;
 import models.UniversityFootballClub;
 
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.*;
 
+@Singleton
 public class UniversityLeagueDao implements LeagueDao<League<UniversityFootballClub>>, Serializable {
 
     Map<String, League<UniversityFootballClub>> leagues = new HashMap<String, League<UniversityFootballClub>>();
@@ -54,5 +57,13 @@ public class UniversityLeagueDao implements LeagueDao<League<UniversityFootballC
 
     }
 
+    @Override
+    public void clean(){
+        leagues.clear();
+    }
+
+    public Map<String, League<UniversityFootballClub>> getDataSet(){
+        return leagues;
+    }
 
 }

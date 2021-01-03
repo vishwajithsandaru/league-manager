@@ -55,4 +55,14 @@ public class PremierLeagueDao implements LeagueDao<League<FootballClub>>, Serial
         }
 
     }
+
+    @Override
+    public void clean(){
+        leagues.clear();
+    }
+
+    public Map<String, League<FootballClub>> getDataSet(){
+        return leagues;
+    }
+
 }

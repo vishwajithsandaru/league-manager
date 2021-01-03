@@ -3,18 +3,23 @@ package services;
 import dao.SchoolLeagueDao;
 import domains.League;
 import exceptions.SchoolLeagueException;
+import exceptions.SchoolLeagueException;
 import models.*;
 import requests.AddFootballClubRequest;
 import requests.AddMatchRequest;
 import responses.LeagueTableResponse;
+import responses.MatchResponse;
 import responses.SchoolStatsResponse;
+import utils.PremierLeagueUtil;
 
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -276,6 +281,7 @@ public class SchoolLeagueManager implements LeagueManager{
             Match match = new Match(dateTime, locObj, leagueClubs.get(teamName1.toLowerCase()), leagueClubs.get(teamName2.toLowerCase()), score1, score2);
             match.setStatus(status);
             processMatch(match);
+            schoolLeague.addMatch(match);
 
         }
         else{
@@ -443,7 +449,14 @@ public class SchoolLeagueManager implements LeagueManager{
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
                 SchoolLeagueDao plDao = (SchoolLeagueDao) objectInputStream.readObject();
-                schoolLeagueDao = plDao;
+
+                schoolLeagueDao.clean();
+
+                Map<String, League<SchoolFootballClub>> leagues = plDao.getDataSet();
+
+                for(String key : leagues.keySet()){
+                    schoolLeagueDao.save(key, leagues.get(key));
+                }
 
                 objectInputStream.close();
                 fileInputStream.close();
@@ -479,5 +492,116 @@ public class SchoolLeagueManager implements LeagueManager{
         }
 
     }
-    
+
+    @Override
+    public void addRandomMatch(String season) throws SchoolLeagueException {
+
+        League<SchoolFootballClub> league = schoolLeagueDao.find(season).orElse(null);
+
+        if(league != null){
+
+            int seasonYear = Integer.parseInt(season.substring(0, season.length()-3));
+            String status = null;
+            List<String> clubNamesArray = new ArrayList<>();
+            Set<String> clubNames = league.getClubs().keySet();
+            for (String str : clubNames){
+                clubNamesArray.add(str);
+            }
+
+            if(clubNamesArray.size()<2){
+                throw new SchoolLeagueException("No Sufficient Amount Of Clubs Available");
+            }
+
+            Random rand = new Random();
+            String team1 = clubNamesArray.get(rand.nextInt(clubNamesArray.size()));
+            String team2 = clubNamesArray.get(rand.nextInt(clubNamesArray.size()));
+            while(team1.equals(team2)){
+                team2 = clubNamesArray.get(rand.nextInt(clubNamesArray.size()));
+            }
+            String date = PremierLeagueUtil.randomDate(seasonYear);
+            String time = PremierLeagueUtil.randomTime();
+            int score1 = PremierLeagueUtil.getRandomNumber(0, 18);
+            int score2 = PremierLeagueUtil.getRandomNumber(0, 18);
+            if(score1 > score2){
+                status = team1 + " Won";
+            }else if(score1 < score2){
+                status = team2 + " Won";
+            }else{
+                status = "Draw";
+            }
+
+            AddMatchRequest addMatchRequest = new AddMatchRequest();
+            addMatchRequest.setPlayedDate(date);
+            addMatchRequest.setStartedTime(time);
+            addMatchRequest.setTeamName1(team1);
+            addMatchRequest.setTeamName2(team2);
+            addMatchRequest.setScore1(score1);
+            addMatchRequest.setScore2(score2);
+            addMatchRequest.setLocation("N/A");
+
+            addMatch(season, addMatchRequest);
+
+        }else{
+            throw new SchoolLeagueException("No Season Available, Create First");
+        }
+
+    }
+
+    @Override
+    public List<MatchResponse> listMatches(String season) throws SchoolLeagueException {
+
+        League<SchoolFootballClub> schoolLeague = schoolLeagueDao.find(season).orElse(null);
+
+        if(schoolLeague == null){
+            throw new SchoolLeagueException("No Season Available, Create First.");
+        }
+
+        List<Match> matches = schoolLeague.getMatches();
+
+        if(matches.isEmpty()) throw new SchoolLeagueException("No Matches Has Been Entered");
+
+        List<MatchResponse> matchResponses = new ArrayList<MatchResponse>();
+
+        for(Match match : matches){
+
+            MatchResponse matchResponse = new MatchResponse();
+            matchResponse.setTeam1(match.getTeam1().getName());
+            matchResponse.setTeam2(match.getTeam2().getName());
+            matchResponse.setScore1(String.valueOf(match.getTeam1Score()));
+            matchResponse.setScore2(String.valueOf(match.getTeam2Score()));
+
+            LocalDate localdate = match.getDateTime().toLocalDate();
+            LocalTime time = match.getDateTime().toLocalTime();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            matchResponse.setDate(localdate.format(formatter));
+            formatter = DateTimeFormatter.ofPattern("HH:mm");
+            matchResponse.setTime(time.format(formatter));
+            matchResponse.setStatus(match.getStatus());
+
+            matchResponses.add(matchResponse);
+
+        }
+
+        Collections.sort(matchResponses);
+
+        return matchResponses;
+
+    }
+
+    @Override
+    public Match getMatchFromDate(String season, String date) throws SchoolLeagueException{
+
+        League<SchoolFootballClub> league = schoolLeagueDao.find(season).orElse(null);
+        if(league == null) throw new SchoolLeagueException("No Seasons Available, Create First");
+
+        Match res = league.getMatchByDate(date);
+        if(res == null) throw new SchoolLeagueException("No Match Found");
+
+        return res;
+
+    }
+
+
 }

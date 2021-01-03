@@ -1,18 +1,21 @@
 package domains;
 
-import models.FootballClub;
-import models.SchoolFootballClub;
-import models.UniversityFootballClub;
-import models.UniversityLeague;
+import models.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class League<T> implements Serializable {
 
     private String season;
     private Map<String, T> clubs = new HashMap<String, T>();
+    private List<Match> matches = new ArrayList<Match>();
     private Class<T> cls;
     private String type;
 
@@ -48,4 +51,27 @@ public class League<T> implements Serializable {
     public Class<T> getCls() {
         return cls;
     }
+
+    public void addMatch(Match match){
+        matches.add(match);
+    }
+
+    public List<Match> getMatches(){
+        return matches;
+    }
+
+    public Match getMatchByDate(String date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for(Match match : matches){
+            LocalDate dateTime = match.getDateTime().toLocalDate();
+            String dt = dateTime.format(formatter);
+
+            if(date.equals(dt)){
+                return match;
+            }
+
+        }
+        return null;
+    }
+
 }

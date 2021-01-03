@@ -4,9 +4,11 @@ import domains.League;
 import models.FootballClub;
 import models.SchoolFootballClub;
 
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.*;
 
+@Singleton
 public class SchoolLeagueDao implements LeagueDao<League<SchoolFootballClub>>, Serializable {
 
     Map<String, League<SchoolFootballClub>> leagues = new HashMap<String, League<SchoolFootballClub>>();
@@ -53,6 +55,15 @@ public class SchoolLeagueDao implements LeagueDao<League<SchoolFootballClub>>, S
 
         }
 
+    }
+
+    @Override
+    public void clean(){
+        leagues.clear();
+    }
+
+    public Map<String, League<SchoolFootballClub>> getDataSet(){
+        return leagues;
     }
 
 }
