@@ -12,6 +12,15 @@ import { MenuComponent } from './components/menu/menu.component';
 import {MatCard, MatCardModule} from "@angular/material/card";
 import {MatSelectModule} from "@angular/material/select";
 import {MatButtonModule} from "@angular/material/button";
+import {MenuService} from "./services/menu.service";
+import {HttpClientModule} from "@angular/common/http";
+import {FormsModule} from "@angular/forms";
+import {MatIconModule} from "@angular/material/icon";
+import {MatTableModule} from "@angular/material/table";
+import { TableComponent } from './components/table/table.component';
+import {MatSortModule} from "@angular/material/sort";
+import { DialogComponent } from './components/dialog/dialog.component';
+import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
   declarations: [
@@ -20,7 +29,9 @@ import {MatButtonModule} from "@angular/material/button";
     UniversityLeagueComponent,
     SchoolLeagueComponent,
     MenuComponent,
-    routingComponents
+    routingComponents,
+    TableComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -29,9 +40,15 @@ import {MatButtonModule} from "@angular/material/button";
     MatTabsModule,
     MatCardModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
+    HttpClientModule,
+    FormsModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatDialogModule
   ],
-  providers: [],
+  providers: [MenuService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

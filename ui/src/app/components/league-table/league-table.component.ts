@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-league-table',
@@ -7,9 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LeagueTableComponent implements OnInit {
 
-  constructor() { }
+  constructor(private activatedRoute: ActivatedRoute) { }
+
+  public season: string;
 
   ngOnInit(): void {
+    let season = this.activatedRoute.snapshot.paramMap.get("season");
+    this.season = season;
   }
 
 }

@@ -1,1 +1,15 @@
-<p>university-league works!</p>
+<div class="main-container">
+  <div class="sub-container">
+
+    <div class="header mat-h1"><span>University League Table - {{season}}</span>
+      <button mat-fab color="primary" class="btn" (click)="createRandomMatch()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <div class="table-container">
+      <app-table [dataSet]="dataSet"></app-table>
+    </div>
+
+  </div>
+</div>

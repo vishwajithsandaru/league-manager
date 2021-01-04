@@ -10,7 +10,7 @@ const routes: Routes = [
     component: MenuComponent
   },
   {
-    path: "league-table",
+    path: "league-table/:season",
     component: LeagueTableComponent
   },
   {
