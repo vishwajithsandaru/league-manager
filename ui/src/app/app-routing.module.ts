@@ -14,7 +14,7 @@ const routes: Routes = [
     component: LeagueTableComponent
   },
   {
-    path: "match-details",
+    path: "match-details/:season",
     component: MatchDetailsComponent
   }
 ];

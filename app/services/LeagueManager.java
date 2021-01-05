@@ -24,8 +24,6 @@ public interface LeagueManager {
 
 	public void createAndAddFootballClub(String season, AddFootballClubRequest addFootballClubRequest) throws Exception;
 
-//	public boolean checkNameAvailability(Map<String, FootballClub> clubs, String name);
-
 	public void deleteFootballClub(String season, String name) throws Exception;
 
 	public StatsResponse displayStats(String season, String name) throws Exception;

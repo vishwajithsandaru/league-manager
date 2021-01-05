@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {LeagueTable} from "../../models/LeagueTable";
 import {MatDialog} from "@angular/material/dialog";
-import {DialogComponent} from "../dialog/dialog.component";
 import {MatchResponse} from "../../models/MatchResponse";
 import {SchoolLeagueService} from "../../services/school-league.service";
 
@@ -26,7 +25,7 @@ export class SchoolLeagueComponent implements OnInit {
     this.schoolLeagueService.getLeagueTable(this.season).subscribe(data=>{
 
       if(data.length == 0){
-        this.dialog.open(DialogComponent);
+
       }
       else{
         this.dataSet = [...data];
@@ -40,7 +39,6 @@ export class SchoolLeagueComponent implements OnInit {
       response = data;
     });
     if(response.status == "" || response.status == null){
-      this.dialog.open(DialogComponent);
     }else{
       this.populateTable();
     }

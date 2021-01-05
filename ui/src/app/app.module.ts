@@ -19,7 +19,6 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatTableModule} from "@angular/material/table";
 import { TableComponent } from './components/table/table.component';
 import {MatSortModule} from "@angular/material/sort";
-import { DialogComponent } from './components/dialog/dialog.component';
 import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
@@ -30,8 +29,7 @@ import {MatDialogModule} from "@angular/material/dialog";
     SchoolLeagueComponent,
     MenuComponent,
     routingComponents,
-    TableComponent,
-    DialogComponent
+    TableComponent
   ],
   imports: [
     BrowserModule,

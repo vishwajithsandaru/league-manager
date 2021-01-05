@@ -26,7 +26,7 @@ export class MenuComponent implements OnInit {
   }
 
   public matchDetailsView(){
-
+    this.router.navigate(['match-details', this.selectedValue]);
   }
 
 }
